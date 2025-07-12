@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 
 const AuthForms: React.FC = () => {
-  const { login, register, isAuthenticated, logout } = useGame();
+  const { user, login, register, logout, isAuthenticated } = useGame();
   
   const [loginEmail, setLoginEmail] = useState<string>('');
   const [loginPassword, setLoginPassword] = useState<string>('');
@@ -33,7 +33,7 @@ const AuthForms: React.FC = () => {
     try {
       await login(loginEmail, loginPassword);
     } catch (err) {
-      setError('Login failed. Please check your credentials.');
+      setError('Invalid email or password');
     } finally {
       setIsLoading(false);
     }
@@ -56,7 +56,7 @@ const AuthForms: React.FC = () => {
     try {
       await register(registerEmail, registerPhone, registerPassword);
     } catch (err) {
-      setError('Registration failed. Please try again.');
+      setError('Registration failed');
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +67,7 @@ const AuthForms: React.FC = () => {
       <Button 
         onClick={logout} 
         variant="destructive"
-        className="w-full"
+        size="sm"
       >
         Logout
       </Button>
@@ -77,11 +77,11 @@ const AuthForms: React.FC = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="w-full">Login / Register</Button>
+        <Button size="sm">Login / Register</Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-800 text-white sm:max-w-md">
+      <DialogContent className="bg-gray-800 text-white">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Account Access</DialogTitle>
+          <DialogTitle>Account Access</DialogTitle>
         </DialogHeader>
         
         <Tabs defaultValue="login" className="w-full mt-4">
@@ -92,15 +92,15 @@ const AuthForms: React.FC = () => {
           
           <TabsContent value="login" className="mt-4 space-y-4">
             {error && (
-              <div className="bg-red-900/50 border border-red-500 p-3 rounded-md text-red-200">
+              <div className="bg-red-500/20 border border-red-500 p-3 rounded-md text-red-300 text-sm">
                 {error}
               </div>
             )}
             
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="login-email">Email</Label>
               <Input
-                id="email"
+                id="login-email"
                 type="email"
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
@@ -109,9 +109,9 @@ const AuthForms: React.FC = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="login-password">Password</Label>
               <Input
-                id="password"
+                id="login-password"
                 type="password"
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
@@ -130,7 +130,7 @@ const AuthForms: React.FC = () => {
           
           <TabsContent value="register" className="mt-4 space-y-4">
             {error && (
-              <div className="bg-red-900/50 border border-red-500 p-3 rounded-md text-red-200">
+              <div className="bg-red-500/20 border border-red-500 p-3 rounded-md text-red-300 text-sm">
                 {error}
               </div>
             )}
@@ -154,7 +154,7 @@ const AuthForms: React.FC = () => {
                 value={registerPhone}
                 onChange={(e) => setRegisterPhone(e.target.value)}
                 className="bg-gray-700 border-gray-600"
-                placeholder="e.g. 254712345678"
+                placeholder="e.g. 07XXXXXXXX"
               />
             </div>
             

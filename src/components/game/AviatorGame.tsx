@@ -1,7 +1,6 @@
 
 import React, { useRef, useEffect } from 'react';
 import { useGame } from '../../context/GameContext';
-import { motion } from 'framer-motion';
 
 const AviatorGame: React.FC = () => {
   const { 
@@ -143,14 +142,13 @@ const AviatorGame: React.FC = () => {
       {gameState === 'running' && activeBets.length > 0 && (
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-4">
           {activeBets.map(bet => (
-            <motion.button
+            <button
               key={bet.id}
-              className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full text-lg shadow-lg"
-              whileTap={{ scale: 0.95 }}
+              className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full text-lg shadow-lg transition-transform active:scale-95"
               onClick={() => cashout(bet.betNumber)}
             >
               CASH OUT {bet.betNumber} ({(bet.amount * currentMultiplier).toFixed(2)})
-            </motion.button>
+            </button>
           ))}
         </div>
       )}

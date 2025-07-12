@@ -9,32 +9,20 @@ const GameHistory: React.FC = () => {
     <div className="bg-gray-800 rounded-lg p-4">
       <h3 className="text-xl font-bold text-white mb-4">Recent Games</h3>
       
-      <div className="flex flex-wrap gap-2">
-        {gameHistory.map((game) => {
-          // Determine color based on crash point
-          let bgColor = 'bg-gray-600';
-          
-          if (game.crashPoint < 1.5) {
-            bgColor = 'bg-red-600';
-          } else if (game.crashPoint < 3) {
-            bgColor = 'bg-yellow-600';
-          } else if (game.crashPoint < 10) {
-            bgColor = 'bg-green-600';
-          } else {
-            bgColor = 'bg-blue-600';
-          }
-          
-          return (
-            <div 
-              key={game.id} 
-              className={`${bgColor} rounded-full w-16 h-16 flex items-center justify-center`}
-            >
-              <span className="text-white font-bold">
-                {game.crashPoint.toFixed(2)}x
-              </span>
-            </div>
-          );
-        })}
+      <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
+        {gameHistory.map((game) => (
+          <div 
+            key={game.id} 
+            className={`flex items-center justify-center p-2 rounded-lg ${
+              game.crashPoint < 2 ? 'bg-red-500' : 
+              game.crashPoint < 10 ? 'bg-yellow-500' : 'bg-green-500'
+            }`}
+          >
+            <span className="font-bold text-sm">
+              {game.crashPoint.toFixed(2)}x
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );
