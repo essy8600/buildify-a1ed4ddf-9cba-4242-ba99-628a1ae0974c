@@ -1,157 +1,196 @@
 
 import React, { useState } from 'react';
 import { useGame } from '../../context/GameContext';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { Button } from '../ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 
 const AuthForms: React.FC = () => {
-  const { login, register } = useGame();
+  const { login, register, isAuthenticated, logout } = useGame();
   
-  const [loginData, setLoginData] = useState({
-    email: '',
-    password: '',
-  });
+  const [loginEmail, setLoginEmail] = useState<string>('');
+  const [loginPassword, setLoginPassword] = useState<string>('');
   
-  const [registerData, setRegisterData] = useState({
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: '',
-  });
+  const [registerEmail, setRegisterEmail] = useState<string>('');
+  const [registerPhone, setRegisterPhone] = useState<string>('');
+  const [registerPassword, setRegisterPassword] = useState<string>('');
+  const [registerConfirmPassword, setRegisterConfirmPassword] = useState<string>('');
   
-  const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setLoginData((prev) => ({ ...prev, [name]: value }));
-  };
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   
-  const handleRegisterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setRegisterData((prev) => ({ ...prev, [name]: value }));
-  };
-  
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    login(loginData.email, loginData.password);
-  };
-  
-  const handleRegister = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (registerData.password !== registerData.confirmPassword) {
-      alert('Passwords do not match');
+  const handleLogin = async () => {
+    if (!loginEmail || !loginPassword) {
+      setError('Please fill in all fields');
       return;
     }
     
-    register(registerData.email, registerData.phone, registerData.password);
+    setError(null);
+    setIsLoading(true);
+    
+    try {
+      await login(loginEmail, loginPassword);
+    } catch (err) {
+      setError('Login failed. Please check your credentials.');
+    } finally {
+      setIsLoading(false);
+    }
   };
   
+  const handleRegister = async () => {
+    if (!registerEmail || !registerPhone || !registerPassword || !registerConfirmPassword) {
+      setError('Please fill in all fields');
+      return;
+    }
+    
+    if (registerPassword !== registerConfirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    
+    setError(null);
+    setIsLoading(true);
+    
+    try {
+      await register(registerEmail, registerPhone, registerPassword);
+    } catch (err) {
+      setError('Registration failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  if (isAuthenticated) {
+    return (
+      <Button 
+        onClick={logout} 
+        variant="destructive"
+        className="w-full"
+      >
+        Logout
+      </Button>
+    );
+  }
+  
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle>Welcome to Aviator</CardTitle>
-        <CardDescription>Login or create an account to start playing</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="login">
-          <TabsList className="grid grid-cols-2 mb-4">
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button className="w-full">Login / Register</Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-800 text-white sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold">Account Access</DialogTitle>
+        </DialogHeader>
+        
+        <Tabs defaultValue="login" className="w-full mt-4">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login">Login</TabsTrigger>
             <TabsTrigger value="register">Register</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="login">
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="login-email">Email</Label>
-                <Input
-                  id="login-email"
-                  name="email"
-                  type="email"
-                  required
-                  value={loginData.email}
-                  onChange={handleLoginChange}
-                />
+          <TabsContent value="login" className="mt-4 space-y-4">
+            {error && (
+              <div className="bg-red-900/50 border border-red-500 p-3 rounded-md text-red-200">
+                {error}
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="login-password">Password</Label>
-                <Input
-                  id="login-password"
-                  name="password"
-                  type="password"
-                  required
-                  value={loginData.password}
-                  onChange={handleLoginChange}
-                />
-              </div>
-              
-              <Button type="submit" className="w-full">Login</Button>
-            </form>
+            )}
+            
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                className="bg-gray-700 border-gray-600"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                className="bg-gray-700 border-gray-600"
+              />
+            </div>
+            
+            <Button 
+              onClick={handleLogin} 
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Logging in...' : 'Login'}
+            </Button>
           </TabsContent>
           
-          <TabsContent value="register">
-            <form onSubmit={handleRegister} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="register-email">Email</Label>
-                <Input
-                  id="register-email"
-                  name="email"
-                  type="email"
-                  required
-                  value={registerData.email}
-                  onChange={handleRegisterChange}
-                />
+          <TabsContent value="register" className="mt-4 space-y-4">
+            {error && (
+              <div className="bg-red-900/50 border border-red-500 p-3 rounded-md text-red-200">
+                {error}
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="register-phone">Phone Number</Label>
-                <Input
-                  id="register-phone"
-                  name="phone"
-                  type="tel"
-                  required
-                  value={registerData.phone}
-                  onChange={handleRegisterChange}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="register-password">Password</Label>
-                <Input
-                  id="register-password"
-                  name="password"
-                  type="password"
-                  required
-                  value={registerData.password}
-                  onChange={handleRegisterChange}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="register-confirm-password">Confirm Password</Label>
-                <Input
-                  id="register-confirm-password"
-                  name="confirmPassword"
-                  type="password"
-                  required
-                  value={registerData.confirmPassword}
-                  onChange={handleRegisterChange}
-                />
-              </div>
-              
-              <Button type="submit" className="w-full">Register</Button>
-            </form>
+            )}
+            
+            <div className="space-y-2">
+              <Label htmlFor="register-email">Email</Label>
+              <Input
+                id="register-email"
+                type="email"
+                value={registerEmail}
+                onChange={(e) => setRegisterEmail(e.target.value)}
+                className="bg-gray-700 border-gray-600"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="register-phone">Phone Number</Label>
+              <Input
+                id="register-phone"
+                type="tel"
+                value={registerPhone}
+                onChange={(e) => setRegisterPhone(e.target.value)}
+                className="bg-gray-700 border-gray-600"
+                placeholder="e.g. 254712345678"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="register-password">Password</Label>
+              <Input
+                id="register-password"
+                type="password"
+                value={registerPassword}
+                onChange={(e) => setRegisterPassword(e.target.value)}
+                className="bg-gray-700 border-gray-600"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="register-confirm-password">Confirm Password</Label>
+              <Input
+                id="register-confirm-password"
+                type="password"
+                value={registerConfirmPassword}
+                onChange={(e) => setRegisterConfirmPassword(e.target.value)}
+                className="bg-gray-700 border-gray-600"
+              />
+            </div>
+            
+            <Button 
+              onClick={handleRegister} 
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Registering...' : 'Register'}
+            </Button>
           </TabsContent>
         </Tabs>
-      </CardContent>
-      <CardFooter className="flex justify-center">
-        <p className="text-sm text-gray-500">
-          By continuing, you agree to our Terms of Service and Privacy Policy
-        </p>
-      </CardFooter>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 };
 

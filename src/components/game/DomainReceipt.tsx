@@ -1,89 +1,86 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../ui/card';
+import React from 'react';
 import { Button } from '../ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 
 const DomainReceipt: React.FC = () => {
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  
-  const handlePrint = () => {
-    window.print();
-  };
-  
-  const handleDownload = () => {
-    // Create a blob with receipt content
+  const generateReceipt = () => {
     const receiptContent = `
       DOMAIN REGISTRATION RECEIPT
+      --------------------------
       
-      Domain: blogwriter.uk
+      Domain Name: blogwriter.uk
+      Registration Date: July 12, 2025
+      Expiration Date: July 12, 2026
+      
+      Registrar: Buildify Domains
       URL: https://blogwriter.uk
-      Registration Date: ${new Date().toLocaleDateString()}
+      
       Status: Active
       
       Thank you for your registration!
     `;
     
+    // Create a Blob with the receipt content
     const blob = new Blob([receiptContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
     
-    // Create a temporary link and trigger download
+    // Create a download link
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'domain_receipt.txt';
+    a.download = 'domain_receipt_blogwriter_uk.txt';
+    
+    // Trigger the download
     document.body.appendChild(a);
     a.click();
     
     // Clean up
-    URL.revokeObjectURL(url);
     document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
   
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Domain Information</CardTitle>
-        <CardDescription>View and download your domain receipt</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          <p><strong>Domain:</strong> blogwriter.uk</p>
-          <p><strong>URL:</strong> https://blogwriter.uk</p>
-          <p><strong>Status:</strong> Active</p>
-        </div>
-      </CardContent>
-      <CardFooter>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="w-full">View Domain Receipt</Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>Domain Registration Receipt</DialogTitle>
-              <DialogDescription>
-                Receipt for your domain registration
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="border p-4 rounded-md space-y-2 my-4">
-              <h3 className="font-bold text-center text-lg">DOMAIN REGISTRATION RECEIPT</h3>
-              <div className="space-y-2 mt-4">
-                <p><strong>Domain:</strong> blogwriter.uk</p>
-                <p><strong>URL:</strong> https://blogwriter.uk</p>
-                <p><strong>Registration Date:</strong> {new Date().toLocaleDateString()}</p>
-                <p><strong>Status:</strong> Active</p>
-              </div>
-              <p className="text-center mt-4">Thank you for your registration!</p>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="w-full">
+          Domain Receipt
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-800 text-white">
+        <DialogHeader>
+          <DialogTitle>Domain Registration Receipt</DialogTitle>
+        </DialogHeader>
+        
+        <div className="p-4 border border-gray-600 rounded-lg bg-gray-700 my-4">
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-gray-400">Domain:</span>
+              <span className="font-medium">blogwriter.uk</span>
             </div>
-            
-            <DialogFooter className="flex flex-col sm:flex-row gap-2">
-              <Button onClick={handlePrint} className="flex-1">Print Receipt</Button>
-              <Button onClick={handleDownload} className="flex-1">Download Receipt</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </CardFooter>
-    </Card>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Registration Date:</span>
+              <span className="font-medium">July 12, 2025</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Expiration Date:</span>
+              <span className="font-medium">July 12, 2026</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Status:</span>
+              <span className="text-green-400 font-medium">Active</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">URL:</span>
+              <span className="font-medium">https://blogwriter.uk</span>
+            </div>
+          </div>
+        </div>
+        
+        <Button onClick={generateReceipt} className="w-full">
+          Download Receipt
+        </Button>
+      </DialogContent>
+    </Dialog>
   );
 };
 

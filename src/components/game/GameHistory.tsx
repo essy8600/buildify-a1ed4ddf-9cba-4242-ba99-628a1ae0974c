@@ -1,55 +1,42 @@
 
 import React from 'react';
 import { useGame } from '../../context/GameContext';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 
 const GameHistory: React.FC = () => {
-  const { roundHistory } = useGame();
+  const { gameHistory } = useGame();
   
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Game History</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Round</TableHead>
-              <TableHead>Crash Point</TableHead>
-              <TableHead>Time</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {roundHistory.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={3} className="text-center">No game history yet</TableCell>
-              </TableRow>
-            ) : (
-              roundHistory.map((round) => (
-                <TableRow key={round.id}>
-                  <TableCell>{round.id}</TableCell>
-                  <TableCell>
-                    <span 
-                      className={
-                        round.crashPoint >= 10 ? 'text-green-600 font-bold' : 
-                        round.crashPoint >= 2 ? 'text-blue-600' : 'text-red-600'
-                      }
-                    >
-                      {round.crashPoint.toFixed(2)}x
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    {round.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+    <div className="bg-gray-800 rounded-lg p-4">
+      <h3 className="text-xl font-bold text-white mb-4">Recent Games</h3>
+      
+      <div className="flex flex-wrap gap-2">
+        {gameHistory.map((game) => {
+          // Determine color based on crash point
+          let bgColor = 'bg-gray-600';
+          
+          if (game.crashPoint < 1.5) {
+            bgColor = 'bg-red-600';
+          } else if (game.crashPoint < 3) {
+            bgColor = 'bg-yellow-600';
+          } else if (game.crashPoint < 10) {
+            bgColor = 'bg-green-600';
+          } else {
+            bgColor = 'bg-blue-600';
+          }
+          
+          return (
+            <div 
+              key={game.id} 
+              className={`${bgColor} rounded-full w-16 h-16 flex items-center justify-center`}
+            >
+              <span className="text-white font-bold">
+                {game.crashPoint.toFixed(2)}x
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 };
 
